@@ -83,7 +83,7 @@ Will render to this:
     …
 </ul>
 ````
-![Rednered Preview](example.png)
+![Rendered Preview](example.png)
 
 ## Installation
 
