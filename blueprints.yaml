@@ -1,0 +1,25 @@
+name: 'SVG Extension'
+version: 1.0.0
+description: 'Inline SVG in Twig Templates'
+icon: picture-o
+author:
+  name: Martin Römer + Sebastian Laube
+  email: bitstarr@users.noreply.github.com
+homepage: https://github.com/bitstarr/grav-plugin-svg-extension
+license: MIT
+dependencies:
+    - { name: grav, version: '>=1.6.0' }
+
+form:
+  validation: strict
+  fields:
+    enabled:
+      type: toggle
+      label: PLUGIN_ADMIN.PLUGIN_STATUS
+      highlight: 1
+      default: 0
+      options:
+        1: PLUGIN_ADMIN.ENABLED
+        0: PLUGIN_ADMIN.DISABLED
+      validate:
+        type: bool
