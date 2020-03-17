@@ -1,5 +1,5 @@
 name: 'SVG Extension'
-version: 1.0.0
+version: 1.0.1
 description: 'Inline SVG in Twig Templates'
 icon: picture-o
 author:
@@ -23,3 +23,8 @@ form:
         0: PLUGIN_ADMIN.DISABLED
       validate:
         type: bool
+    defaultClass:
+      type: text
+      label: Default CSS classes
+      validate:
+        required: true

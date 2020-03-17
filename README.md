@@ -12,10 +12,10 @@ You can access your SVG files in two ways.
 First you can set a base path in the plugin config and access them by filename:
 
 ````twig
-{{ svg( 'search', 'icon' ) }}
+{{ svg( 'search' ) }}
 ````
 
-This will lookup ``search.svg`` in the icons folder. The default icon folder is ``theme://dist/icons/`` and can be set in the [Configuration](#configuration).
+This will lookup ``search.svg`` in the icons folder. The default icon folder is ``theme://dist/icons/`` and can be set in the [configuration](#configuration).
 
 ### Access with absolute path
 The second way is to use a somehow absolute path:
@@ -37,6 +37,12 @@ First parameter is the path or filname (as mentioned above). The second is the p
 
 > About Accessability: Without a title, the SVG will be placed as pesentational image. Take a look in the expamples tfor more details.
 
+There is a [configuration](#configuration) option to set the default CSS classes, so you can use a very short call for simple, presentational icons:
+
+````twig
+{{ svg('info') }}
+````
+
 ### Example
 
 ````css
@@ -55,10 +61,10 @@ First parameter is the path or filname (as mentioned above). The second is the p
 ````twig
 <ul class="meta">
     <li class="meta__item">
-        {{ svg('thumbtack', 'icon' }}
+        {{ svg('thumbtack' }}
     </li>
     <li class="meta__item">
-        {{ svg('clock', 'icon', { 'title': 'Cooking Time' }) }}
+        {{ svg('clock', 'icon icon--mod', { 'title': 'Cooking Time' }) }}
         10 Minutes
     </li>
     …
@@ -74,7 +80,7 @@ Will render to this:
         </svg>
     </li>
     <li class="meta__item">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon" role="image" aria-labelledby="icon__title--5e6b577f45c8b" preserveAspectRatio="xMinYMin">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon icon--mod" role="image" aria-labelledby="icon__title--5e6b577f45c8b" preserveAspectRatio="xMinYMin">
             <path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm61.8-104.4l-84.9-61.7c-3.1-2.3-4.9-5.9-4.9-9.7V116c0-6.6 5.4-12 12-12h32c6.6 0 12 5.4 12 12v141.7l66.8 48.6c5.4 3.9 6.5 11.4 2.6 16.8L334.6 349c-3.9 5.3-11.4 6.5-16.8 2.6z"></path>
             <title id="icon__title--5e6b577f45c8b">Cooking Time</title>
         </svg>
@@ -118,9 +124,8 @@ Here is the default configuration and an explanation of available options:
 
 ```yaml
 enabled: true
-path: 'theme://dist/icons/'
+path: 'theme://dist/icons/'   # Where are your SVG files stored?
+defaultClass: 'icon'          # What's the default CSS classes?
 ```
 
 Note that if you use the Admin Plugin, a file with your configuration named svg-extension.yaml will be saved in the `user/config/plugins/`-folder once the configuration is saved in the Admin.
-
-In order to use keywords/filenames only to target your SVGs, you need to point the path variable to the place where your files are stored.

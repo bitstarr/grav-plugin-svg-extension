@@ -102,6 +102,10 @@ class SVGExtensionPlugin extends Plugin
             $svgString = file_get_contents($svgPath);
         }
 
+        if (!$class) {
+            $class = $this->config->get('plugins.svg-extension.defaultClass');
+        }
+
         if ($svgString && $this->isValidSvg($svgString)) {
             if ($class || $this->options['id'] || $this->options['title']) {
                 $svgString = $this->createHtml($svgString, $class);
