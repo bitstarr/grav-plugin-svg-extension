@@ -28,3 +28,9 @@ form:
       label: Default CSS classes
       validate:
         required: true
+    removeScriptTags:
+      type: toggle
+      label: remove script tags from SVG
+      default: 1
+      validate:
+        type: bool
