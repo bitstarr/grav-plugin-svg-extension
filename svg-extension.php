@@ -242,11 +242,11 @@ class SVGExtensionPlugin extends Plugin
             $titleTag = $svgDomDoc->createElement('title', $this->options['title']);
             $titleTag->setAttribute('id', $attId);
             $svgNodeInDocument->appendChild($titleTag);
-            $svgNodeInDocument->setAttribute('role', 'image');
+            $svgNodeInDocument->setAttribute('role', 'img');
             $svgNodeInDocument->setAttribute('aria-labelledby', $attId);
         }
         else {
-            $svgNodeInDocument->setAttribute('role', 'presentation');
+            $svgNodeInDocument->setAttribute('role', 'img');
             $svgNodeInDocument->setAttribute('aria-hidden', 'true');
         }
 
