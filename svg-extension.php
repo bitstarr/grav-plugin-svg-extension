@@ -229,16 +229,24 @@ class SVGExtensionPlugin extends Plugin
             $svgNodeInDocument->setAttribute('class', trim(implode(' ', $classes)));
         }
 
+        if ($this->config->get('plugins.svg-extension.removeScriptTags')) {
+            $scriptTags = $svgNodeInDocument->getElementsByTagName('script');
+
+            foreach ($scriptTags as $scriptTag) {
+                $scriptTag->parentNode->removeChild($scriptTag);
+            }
+        }
+
         if ($this->options['title']) {
             $attId = uniqid('icon__title--');
             $titleTag = $svgDomDoc->createElement('title', $this->options['title']);
             $titleTag->setAttribute('id', $attId);
             $svgNodeInDocument->appendChild($titleTag);
-            $svgNodeInDocument->setAttribute('role', 'image');
+            $svgNodeInDocument->setAttribute('role', 'img');
             $svgNodeInDocument->setAttribute('aria-labelledby', $attId);
         }
         else {
-            $svgNodeInDocument->setAttribute('role', 'presentation');
+            $svgNodeInDocument->setAttribute('role', 'img');
             $svgNodeInDocument->setAttribute('aria-hidden', 'true');
         }
 

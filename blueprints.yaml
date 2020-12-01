@@ -1,5 +1,5 @@
 name: 'SVG Extension'
-version: 1.0.1
+version: 1.0.2
 description: 'Inline SVG in Twig Templates'
 icon: picture-o
 author:
@@ -28,3 +28,9 @@ form:
       label: Default CSS classes
       validate:
         required: true
+    removeScriptTags:
+      type: toggle
+      label: remove script tags from SVG
+      default: 1
+      validate:
+        type: bool
