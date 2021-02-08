@@ -2,7 +2,7 @@
 
 The **SVG Extension** Plugin is an extension for [Grav CMS](http://github.com/getgrav/grav). It provides a way to inline SVG files in your Twig templates so you can style them with CSS.
 
-> Minifying: To keep the amount of markup low, consider an automated workflow (involving gulp/grunt and svgo for example) to minimize the filesize of the SVG files by optimizing them. Here we are assume that you have an ``assets/svg`` folder with the source files and ``dist/svg`` with the optimized copies. Only the latter will be transfered to the production enviroment in this scenario.
+> Remember Minifying: To keep the amount of markup low, consider an automated workflow (involving gulp/grunt and svgo for example) to minimize the filesize of the SVG files by optimizing them. Here we are assume that you have an ``assets/svg`` folder with the source files and ``dist/svg`` with the optimized copies. Only the latter will be transfered to the production enviroment in this scenario.
 
 ## Usage
 
@@ -12,7 +12,7 @@ You can access your SVG files in two ways.
 First you can set a base path in the plugin config and access them by filename:
 
 ````twig
-{{ svg( 'search' ) }}
+{{ svg( 'search' )|raw }}
 ````
 
 This will lookup ``search.svg`` in the icons folder. The default icon folder is ``theme://dist/icons/`` and can be set in the [configuration](#configuration).
@@ -21,7 +21,7 @@ This will lookup ``search.svg`` in the icons folder. The default icon folder is 
 The second way is to use a somehow absolute path:
 
 ````twig
-{{ svg('theme://optimized/icons/search.svg', 'icon') }}
+{{ svg('theme://optimized/icons/search.svg', 'icon')|raw }}
 ````
 
 ### Parameters
@@ -32,7 +32,7 @@ First parameter is the path or filname (as mentioned above). The second is the p
 * ``preserveAspectRatio`` for orientation, defaults to ``xMinYMin``
 
 ````twig
-{{ svg('logo', 'icon logo__img', { 'id': 'logo-icon', 'title': 'Brand name' }) }}
+{{ svg('logo', 'icon logo__img', { 'id': 'logo-icon', 'title': 'Brand name' })|raw }}
 ````
 
 > About Accessability: Without a title, the SVG will be placed as pesentational image. Take a look in the expamples tfor more details.
@@ -40,7 +40,7 @@ First parameter is the path or filname (as mentioned above). The second is the p
 There is a [configuration](#configuration) option to set the default CSS classes, so you can use a very short call for simple, presentational icons:
 
 ````twig
-{{ svg('info') }}
+{{ svg('info')|raw }}
 ````
 
 ### Example
@@ -61,10 +61,10 @@ There is a [configuration](#configuration) option to set the default CSS classes
 ````twig
 <ul class="meta">
     <li class="meta__item">
-        {{ svg('thumbtack' }}
+        {{ svg('thumbtack')|raw }}
     </li>
     <li class="meta__item">
-        {{ svg('clock', 'icon icon--mod', { 'title': 'Cooking Time' }) }}
+        {{ svg('clock', 'icon icon--mod', { 'title': 'Cooking Time' })|raw }}
         10 Minutes
     </li>
     …
@@ -75,12 +75,12 @@ Will render to this:
 ````html
 <ul class="meta">
     <li class="meta__item">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="icon" role="presentation" aria-hidden="true" preserveAspectRatio="xMinYMin">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="icon" role="img" aria-hidden="true" preserveAspectRatio="xMinYMin">
             <path d="M306.5 186.6l-5.7-42.6H328c13.2 0 24-10.8 24-24V24c0-13.2-10.8-24-24-24H56C42.8 0 32 10.8 32 24v96c0 13.2 10.8 24 24 24h27.2l-5.7 42.6C29.6 219.4 0 270.7 0 328c0 13.2 10.8 24 24 24h144v104c0 .9.1 1.7.4 2.5l16 48c2.4 7.3 12.8 7.3 15.2 0l16-48c.3-.8.4-1.7.4-2.5V352h144c13.2 0 24-10.8 24-24 0-57.3-29.6-108.6-77.5-141.4zM50.5 304c8.3-38.5 35.6-70 71.5-87.8L138 96H80V48h224v48h-58l16 120.2c35.8 17.8 63.2 49.4 71.5 87.8z"></path>
         </svg>
     </li>
     <li class="meta__item">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon icon--mod" role="image" aria-labelledby="icon__title--5e6b577f45c8b" preserveAspectRatio="xMinYMin">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon icon--mod" role="img" aria-labelledby="icon__title--5e6b577f45c8b" preserveAspectRatio="xMinYMin">
             <path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm61.8-104.4l-84.9-61.7c-3.1-2.3-4.9-5.9-4.9-9.7V116c0-6.6 5.4-12 12-12h32c6.6 0 12 5.4 12 12v141.7l66.8 48.6c5.4 3.9 6.5 11.4 2.6 16.8L334.6 349c-3.9 5.3-11.4 6.5-16.8 2.6z"></path>
             <title id="icon__title--5e6b577f45c8b">Cooking Time</title>
         </svg>
