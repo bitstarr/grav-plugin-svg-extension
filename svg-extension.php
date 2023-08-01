@@ -70,6 +70,12 @@ class SVGExtensionPlugin extends Plugin
         $this->grav['twig']->twig()->addFunction(
             new \Twig_SimpleFunction('svg', [$this, 'getSvg'])
         );
+        $this->grav['twig']->twig()->addFunction(
+            new \Twig_SimpleFunction('svgSprite', [$this, 'getSprite'])
+        );
+        $this->grav['twig']->twig()->addFunction(
+            new \Twig_SimpleFunction('sprite', [$this, 'useSprite'])
+        );
     }
 
     /**
@@ -90,10 +96,10 @@ class SVGExtensionPlugin extends Plugin
             return $this->getFromProcessed($processedKey) ?? '';
         }
 
-        $this->assetPath = ($this->config->get('plugins.svg-extension.path')) ? $this->config->get('plugins.svg-extension.path') : 'theme://dist/icons/';
+        $assetPath = ($this->config->get('plugins.svg-extension.path')) ? $this->config->get('plugins.svg-extension.path') : 'theme://dist/icons/';
 
         if (! preg_match('~[\./]~', $svgPath)) {
-            $svgPath = $this->grav['locator']->findResource($this->assetPath . $svgPath . '.svg');
+            $svgPath = $this->grav['locator']->findResource($assetPath . $svgPath . '.svg');
         }
 
         $svgString = $svgPath;
@@ -254,5 +260,169 @@ class SVGExtensionPlugin extends Plugin
 
         // Lediglich erste Node ausgeben, um XML Deklaration (<!--xml...-->) zu unterdrücken
         return $svgDomDoc->saveXML($svgDomDoc->documentElement);
+    }
+
+    /**
+     * Sprite aus icons erzeugen
+     *
+     * @param array $paths
+     * @param array|null $options
+     * @return string
+     */
+    public function getSprite(array $paths = [], ?array $options = []): string
+    {
+        $assetPath = ($this->config->get('plugins.svg-extension.path')) ? $this->config->get('plugins.svg-extension.path') : 'theme://dist/icons/';
+
+        foreach ($this->defaults as $key => $value)
+        {
+            $this->options[$key] = array_key_exists($key, $options) ? $options[$key] : $value;
+        }
+
+        $icons = [];
+        foreach ( $paths as $path )
+        {
+            $id = $path;
+            if (! preg_match('~[\./]~', $path)) {
+                $path = $this->grav['locator']->findResource($assetPath . $path . '.svg');
+            }
+            else
+            {
+                preg_match( '/(?<filename>\w+)(\.\w+)?[^\/]*$/', $path, $matches );
+                $id = $matches['filename'];
+            }
+            if ($path !== null && $this->isSvgFromFile($path)) {
+                $svgString = file_get_contents($path);
+            }
+            if ($svgString && $this->isValidSvg($svgString)) {
+                $icons[$id] = $svgString;
+            }
+        }
+
+        if ( count( $icons ) )
+        {
+            foreach ( $icons as $key => $icon )
+            {
+                $icons[$key] = $this->createSymbol($icon, $key);
+            }
+
+            $body = implode( '', $icons );
+            $output = '<svg style="display:none">' . $body . '</svg>';
+
+            return $output;
+        }
+
+        // Auf Standardwerte zurücksetzen, da sie sonst ins nächste Icon bluten
+        $this->options = [];
+
+        return '';
+    }
+
+    /**
+     *
+     * @param string $svgString String der SVG Source
+     */
+    protected function createSymbol(string $svgString, string $id): string
+    {
+        $svgDomDoc = new DOMDocument();
+        try {
+            $svgDomDoc->loadXML($svgString);
+        } catch (Exception $e) {
+            return '';
+        }
+
+        $svgNodeInDocument = $svgDomDoc->getElementsByTagName('svg')->item(0);
+        if (!$svgNodeInDocument instanceof DOMElement) {
+            throw new UnexpectedValueException('Could not get DOMElement from SVG.');
+        }
+
+        // sanitize
+        $scriptTags = $svgNodeInDocument->getElementsByTagName('script');
+        foreach ($scriptTags as $scriptTag) {
+            $scriptTag->parentNode->removeChild($scriptTag);
+        }
+        $svgNodeInDocument->removeAttribute('class');
+
+        //create symbol (without XML prefixing)
+        $symbolNode = $svgNodeInDocument->ownerDocument->createElementNS( 'http://www.w3.org/2000/svg', 'symbol' );
+
+        // move contents
+        foreach ( $svgNodeInDocument->childNodes as $child )
+        {
+            if ( $child->nodeType != 1 )
+            {
+                continue;
+            }
+            $symbolNode->appendChild( $child );
+        }
+
+        // preserve attributes
+        if ( $svgNodeInDocument->hasAttributes() )
+        {
+            foreach ( $svgNodeInDocument->attributes as $attr )
+            {
+                $attrName = $attr->nodeName;
+                $attrValue = $attr->nodeValue;
+                $symbolNode->setAttribute( $attrName, $attrValue) ;
+            }
+        }
+
+        // spice the symbol
+        $symbolNode->setAttribute('id', 'icon-' . $id);
+        $symbolNode->setAttribute('preserveAspectRatio', $this->options['preserveAspectRatio']);
+
+        // finally replace svg with symbol
+        $svgNodeInDocument->parentNode->replaceChild( $symbolNode, $svgNodeInDocument );
+
+        // Lediglich erste Node ausgeben, um XML Deklaration (<!--xml...-->) zu unterdrücken
+        return $svgDomDoc->saveXML($svgDomDoc->documentElement);
+    }
+
+        /**
+     * Sprite aus icons erzeugen
+     *
+     * @param string $id
+     * @param string|null $class
+     * @param string|null $title
+     * @return string
+     */
+    public function useSprite(string $id, ?string $class = null, ?string $title = null ): string
+    {
+        if (!$id)
+        {
+            return '';
+        }
+
+        if (!$class)
+        {
+            $class = $this->config->get('plugins.svg-extension.defaultClass');
+        }
+
+        $doc = new DOMDocument();
+
+        $svgTag = $doc->createElementNS( 'http://www.w3.org/2000/svg', 'svg' );
+        $svgTag->setAttribute( 'class', $class);
+
+        $useTag = $doc->createElementNS('http://www.w3.org/2000/svg', 'use' );
+        $useTag->setAttribute( 'href', '#icon-' . $id );
+        $useTag->setAttribute( 'xlink:href', '#icon-' . $id );
+        $svgTag->appendChild( $useTag );
+
+        if ( $title )
+        {
+            $attId = uniqid( 'icon__title--' );
+            $titleTag = $doc->createElement( 'title', $title );
+            $titleTag->setAttribute( 'id', $attId );
+            $svgTag->appendChild( $titleTag );
+            $svgTag->setAttribute('role', 'img');
+            $svgTag->setAttribute('aria-labelledby', $attId);
+        }
+        else {
+            $svgTag->setAttribute('role', 'img');
+            $svgTag->setAttribute('aria-hidden', 'true');
+        }
+
+        $doc->appendChild( $svgTag );
+
+        return $doc->saveXML($doc->documentElement);
     }
 }

@@ -1,6 +1,6 @@
 # SVG Extension Plugin
 
-The **SVG Extension** Plugin is an extension for [Grav CMS](http://github.com/getgrav/grav). It provides a way to inline SVG files in your Twig templates so you can style them with CSS.
+The **SVG Extension** Plugin is an extension for [Grav CMS](http://github.com/getgrav/grav). It provides a way to inline SVG files in your Twig templates so you can style them with CSS. In 1.1.0 a way to create [sprites](#sprites) was added.
 
 > Remember Minifying: To keep the amount of markup low, consider an automated workflow (involving gulp/grunt and svgo for example) to minimize the filesize of the SVG files by optimizing them. Here we are assume that you have an ``assets/svg`` folder with the source files and ``dist/svg`` with the optimized copies. Only the latter will be transfered to the production enviroment in this scenario.
 
@@ -35,7 +35,7 @@ First parameter is the path or filname (as mentioned above). The second is the p
 {{ svg('logo', 'icon logo__img', { 'id': 'logo-icon', 'title': 'Brand name' })|raw }}
 ````
 
-> About Accessability: Without a title, the SVG will be placed as pesentational image. Take a look in the expamples tfor more details.
+> About Accessibility: Without a title, the SVG will be placed as pesentational image. Take a look in the expamples tfor more details.
 
 There is a [configuration](#configuration) option to set the default CSS classes, so you can use a very short call for simple, presentational icons:
 
@@ -90,6 +90,71 @@ Will render to this:
 </ul>
 ````
 ![Rendered Preview](example.png)
+
+
+## Sprites
+
+To create a sprite you take a similiar approach as for inlining SVGs dirctly. The difference is, that you provide an array of icons needed and you will refer them  elsewhere.
+
+````twig
+{{ svgSprite( [ 'search', 'phone', 'mail' ] )|raw }}
+````
+
+The example above will place something like the following in your markup;
+
+````html
+<svg style="display:none">
+    <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" id="icon-search" preserveAspectRatio="xMinYMin"><path fill="currentColor" d="…"/></symbol>
+    <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" id="icon-phone" preserveAspectRatio="xMinYMin"><path fill="currentColor" d="…"/></symbol>
+    <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" id="icon-mail" preserveAspectRatio="xMinYMin"><path fill="currentColor" d="…"/></symbol>
+</svg>
+````
+To make use of this hidden bunch of icons use the following, where you like to have the icon.
+
+````twig
+{{ sprite('mail', 'icon')|raw }}
+````
+
+Which will output:
+
+```html
+<svg class="icon" aria-hidden="true">
+    <use xlink:href="#icon-mail" href="#icon-mail"></use>
+</svg>
+```
+
+If you want your content to be more accessable, use this:
+
+```twig
+{{ sprite('mail', null, 'E-Mail')|raw }}
+```
+
+````html
+<svg class="icon" role="img" aria-labelledby="icon-email-title" >
+    <use xlink:href="#icon-mail" href="#icon-mail"></use>
+    <title id="icon-email-title">E-Mail</title>
+</svg>
+````
+
+### Parameters
+
+**svgSprite**
+* The first parameter is an array of IDs/names
+* The second is an object that can only hold ``preserveAspectRatio`` for orientation, defaults to ``xMinYMin``
+
+````twig
+{{ svgSprite( [ 'search', 'phone', 'mail' ], { preserveAspectRatio: 'xMinYMin' } )|raw }}
+````
+
+**sprite**
+* First parameter is the ID/Name
+* Second is the custom class names, default is `icon`
+* Third is the title for better accessability, default is no title
+
+````twig
+{{ sprite('mail', 'icon', 'E-Mail')|raw }}
+````
+
 
 ## Installation
 
