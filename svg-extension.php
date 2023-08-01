@@ -71,7 +71,10 @@ class SVGExtensionPlugin extends Plugin
             new \Twig_SimpleFunction('svg', [$this, 'getSvg'])
         );
         $this->grav['twig']->twig()->addFunction(
-            new \Twig_SimpleFunction('sprite', [$this, 'getSprite'])
+            new \Twig_SimpleFunction('svgSprite', [$this, 'getSprite'])
+        );
+        $this->grav['twig']->twig()->addFunction(
+            new \Twig_SimpleFunction('sprite', [$this, 'useSprite'])
         );
     }
 
@@ -364,7 +367,7 @@ class SVGExtensionPlugin extends Plugin
         }
 
         // spice the symbol
-        $symbolNode->setAttribute('id', $id);
+        $symbolNode->setAttribute('id', 'icon-' . $id);
         $symbolNode->setAttribute('preserveAspectRatio', $this->options['preserveAspectRatio']);
 
         // finally replace svg with symbol
@@ -372,5 +375,54 @@ class SVGExtensionPlugin extends Plugin
 
         // Lediglich erste Node ausgeben, um XML Deklaration (<!--xml...-->) zu unterdrücken
         return $svgDomDoc->saveXML($svgDomDoc->documentElement);
+    }
+
+        /**
+     * Sprite aus icons erzeugen
+     *
+     * @param string $id
+     * @param string|null $class
+     * @param string|null $title
+     * @return string
+     */
+    public function useSprite(string $id, ?string $class = null, ?string $title = null ): string
+    {
+        if (!$id)
+        {
+            return '';
+        }
+
+        if (!$class)
+        {
+            $class = $this->config->get('plugins.svg-extension.defaultClass');
+        }
+
+        $doc = new DOMDocument();
+
+        $svgTag = $doc->createElementNS( 'http://www.w3.org/2000/svg', 'svg' );
+        $svgTag->setAttribute( 'class', $class);
+
+        $useTag = $doc->createElementNS('http://www.w3.org/2000/svg', 'use' );
+        $useTag->setAttribute( 'href', '#icon-' . $id );
+        $useTag->setAttribute( 'xlink:href', '#icon-' . $id );
+        $svgTag->appendChild( $useTag );
+
+        if ( $title )
+        {
+            $attId = uniqid( 'icon__title--' );
+            $titleTag = $doc->createElement( 'title', $title );
+            $titleTag->setAttribute( 'id', $attId );
+            $svgTag->appendChild( $titleTag );
+            $svgTag->setAttribute('role', 'img');
+            $svgTag->setAttribute('aria-labelledby', $attId);
+        }
+        else {
+            $svgTag->setAttribute('role', 'img');
+            $svgTag->setAttribute('aria-hidden', 'true');
+        }
+
+        $doc->appendChild( $svgTag );
+
+        return $doc->saveXML($doc->documentElement);
     }
 }
